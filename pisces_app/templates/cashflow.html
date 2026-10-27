@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Capital & Cashflow - PISCES COMPANY{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">Capital & Cashflow Management</h1>
+        <p class="text-sm text-slate-500 mt-1">Record capital inputs, deposits, withdrawals, and monitor history.</p>
+    </div>
+    <div>
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Cashflow Entry Form Card -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-8">
+    <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-plus-circle text-blue-600"></i> Record New Cashflow Transaction
+    </h2>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label for="{{ form.date.id_for_label }}" class="block text-xs font-semibold text-slate-600 uppercase mb-1">Date</label>
+                <input type="date" name="{{ form.date.name }}" id="{{ form.date.id_for_label }}" value="{{ form.date.value|default:'' }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" required>
+            </div>
+            <div>
+                <label for="{{ form.transaction_type.id_for_label }}" class="block text-xs font-semibold text-slate-600 uppercase mb-1">Transaction Type</label>
+                <select name="{{ form.transaction_type.name }}" id="{{ form.transaction_type.id_for_label }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" required>
+                    {% for choice in form.transaction_type.field.choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="{{ form.amount.id_for_label }}" class="block text-xs font-semibold text-slate-600 uppercase mb-1">Amount ({{ currency_symbol|default:"MWK" }})</label>
+                <input type="number" step="0.01" name="{{ form.amount.name }}" id="{{ form.amount.id_for_label }}" placeholder="0.00" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" required>
+            </div>
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-xs font-semibold text-slate-600 uppercase mb-1">Description / Note</label>
+                <input type="text" name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" placeholder="Optional reference..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+            </div>
+        </div>
+        <div class="flex justify-end pt-2">
+            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm shadow-sm transition">
+                <i class="fa-solid fa-save"></i> Save Record
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Cashflow History Table Card -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <h2 class="font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> Cashflow History
+        </h2>
+        <span class="text-xs text-slate-500 font-medium">{{ records|length }} Total Record(s)</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                    <th class="px-6 py-3.5 font-semibold">Date</th>
+                    <th class="px-6 py-3.5 font-semibold">Transaction Type</th>
+                    <th class="px-6 py-3.5 font-semibold">Amount ({{ currency_symbol|default:"MWK" }})</th>
+                    <th class="px-6 py-3.5 font-semibold">Description</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for r in records %}
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{{ r.date }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if r.transaction_type == 'Capital Input' or r.transaction_type == 'Deposit' %}bg-emerald-100 text-emerald-800{% else %}bg-rose-100 text-rose-800{% endif %}">
+                            {{ r.transaction_type }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 font-bold text-slate-900 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ r.amount|floatformat:2|intcomma }}</td>
+                    <td class="px-6 py-4 text-slate-500">{{ r.description|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-receipt text-3xl mb-2 text-slate-300 block"></i>
+                        No cashflow transactions recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

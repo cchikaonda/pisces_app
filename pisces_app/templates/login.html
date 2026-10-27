@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - PISCES COMPANY{% endblock %}
+
+{% block content %}
+<!-- Include SweetAlert2 CDN if not already in base.html -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- SweetAlert Message Trigger Block -->
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                    title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% else %}Notice{% endif %}",
+                    text: "{{ message|escapejs }}",
+                    confirmButtonColor: '#2563eb',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+        </script>
+    {% endfor %}
+{% endif %}
+
+{% if form.errors %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: 'Invalid username or password. Please try again.',
+                confirmButtonColor: '#2563eb'
+            });
+        });
+    </script>
+{% endif %}
+
+<div class="min-h-[80vh] flex flex-col justify-center items-center px-4 py-12">
+    <!-- Login Card Container -->
+    <div class="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6">
+        
+        <!-- Brand Logo & Header -->
+        <div class="text-center space-y-3">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 shadow-inner">
+                <!-- Pisces / Fish Logo SVG -->
+                <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5c-2.49 0-4.5-2.01-4.5-4.5S10.51 7.5 13 7.5c.87 0 1.68.25 2.37.69l-1.46 1.46c-.28-.1-.58-.15-.91-.15-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5c.33 0 .63-.05.91-.15l1.46 1.46c-.69.44-1.5.69-2.37.69zm3.5-3.5c0-.83-.34-1.58-.88-2.12l1.41-1.41C18.11 10.55 18.5 11.73 18.5 13s-.39 2.45-1.47 3.53l-1.41-1.41c.54-.54.88-1.29.88-2.12z"/>
+                    <circle cx="15.5" cy="8.5" r="1.5"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-900">PISCES CO.</h2>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">Management Portal</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'login' %}" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="id_username" class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">
+                    Username
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="username" 
+                           id="id_username" 
+                           placeholder="Enter your username"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" 
+                           required 
+                           autofocus>
+                </div>
+            </div>
+
+            <div>
+                <label for="id_password" class="block text-xs font-semibold text-slate-600 uppercase mb-1.5">
+                    Password
+                </label>
+                <div class="relative">
+                    <input type="password" 
+                           name="password" 
+                           id="id_password" 
+                           placeholder="••••••••"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" 
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" 
+                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Footer Note -->
+        <div class="pt-2 text-center text-xs text-slate-400 border-t border-slate-100">
+            &copy; {% now "Y" %} Pisces Company. All rights reserved.
+        </div>
+    </div>
+</div>
+{% endblock %}
