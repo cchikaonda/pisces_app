@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Q, F, FloatField
@@ -177,24 +177,62 @@ def invoices_view(request):
     invoices = Invoice.objects.all().order_by('-issue_date')
     payments = Payment.objects.all().order_by('-date')
 
+    form = InvoiceForm(request.POST or None, prefix='invoice')
+    payment_form = PaymentForm(request.POST or None, prefix='payment')
+
     if request.method == 'POST':
-        if 'invoice_submit' in request.POST:
-            form = InvoiceForm(request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Invoice generated successfully!')
-                return redirect('invoices')
-        elif 'payment_submit' in request.POST:
-            pay_form = PaymentForm(request.POST)
-            if pay_form.is_valid():
-                pay_form.save()
-                messages.success(request, 'Payment / Receipt recorded successfully!')
-                return redirect('invoices')
+        if 'invoice_submit' in request.POST and form.is_valid():
+            form.save()
+            messages.success(request, 'Invoice generated successfully!')
+            return redirect('invoices')
+            
+        elif 'payment_submit' in request.POST and payment_form.is_valid():
+            payment = payment_form.save()
+            
+            # Automatically update invoice status based on total payments
+            invoice = payment.invoice
+            if invoice and invoice.trade:
+                total_paid = invoice.payments.aggregate(total=Sum('amount'))['total'] or 0
+                grand_total = invoice.trade.grand_total
+
+                if total_paid >= grand_total:
+                    invoice.status = 'Paid'
+                elif total_paid > 0:
+                    invoice.status = 'Partial'
+                else:
+                    invoice.status = 'Sent'
+                invoice.save()
+
+            messages.success(request, 'Payment recorded and invoice status updated successfully!')
+            return redirect('invoices')
 
     context = {
         'invoices': invoices,
         'payments': payments,
-        'form': InvoiceForm(),
-        'payment_form': PaymentForm(),
+        'form': InvoiceForm(prefix='invoice'),
+        'payment_form': PaymentForm(prefix='payment'),
     }
     return render(request, 'invoices.html', context)
+
+@login_required
+def print_invoice_view(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    total_paid = invoice.payments.aggregate(total=Sum('amount'))['total'] or 0
+    balance_due = invoice.trade.grand_total - total_paid
+    
+    context = {
+        'invoice': invoice,
+        'total_paid': total_paid,
+        'balance_due': balance_due,
+    }
+    return render(request, 'print_invoice.html', context)
+
+
+@login_required
+def print_receipt_view(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    
+    context = {
+        'payment': payment,
+    }
+    return render(request, 'print_receipt.html', context)

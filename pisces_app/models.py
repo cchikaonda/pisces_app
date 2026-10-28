@@ -67,7 +67,8 @@ class Invoice(models.Model):
     STATUS_CHOICES = [
         ('Draft', 'Draft'),
         ('Sent', 'Sent'),
-        ('Paid', 'Paid'),
+        ('Partial', 'Partial Paid'),
+        ('Paid', 'Paid in Full'),
         ('Overdue', 'Overdue'),
     ]
 
