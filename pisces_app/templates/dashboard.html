@@ -71,7 +71,7 @@
 </div>
 
 <!-- Two-Column Recent Activity Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
     <!-- Recent Trades Table -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
@@ -149,5 +149,54 @@
         </div>
     </div>
 
+</div>
+
+<!-- P&L Summary Table Section on Dashboard -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+    <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+        <h2 class="font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> P&L Summary Table (Monthly)
+        </h2>
+        <a href="{% url 'reports' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Open Detailed Reports &rarr;</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+            <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Period</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Revenue (Sales) ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Purchases ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Transport ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Labor ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Total Expenses ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Net Profit / (Loss) ({{ currency_symbol|default:"MWK" }})</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for row in summary %}
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="px-5 py-4 font-bold text-slate-900 whitespace-nowrap">{{ row.period }}</td>
+                    <td class="px-5 py-4 font-semibold text-emerald-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.revenue|floatformat:2|intcomma }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.purchases|floatformat:2|intcomma }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.transport|floatformat:2|intcomma }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.labor|floatformat:2|intcomma }}</td>
+                    <td class="px-5 py-4 font-semibold text-rose-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.total_expenses|floatformat:2|intcomma }}</td>
+                    <td class="px-5 py-4 whitespace-nowrap">
+                        <span class="font-bold text-base {% if row.net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                            {{ currency_symbol|default:"MWK" }} {{ row.net_profit|floatformat:2|intcomma }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-chart-line-down text-3xl mb-2 text-slate-300 block"></i>
+                        No transaction data available for reports.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

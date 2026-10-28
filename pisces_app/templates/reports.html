@@ -1,84 +1,183 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block title %}Profit & Loss Reports - PISCES COMPANY{% endblock %}
+{% block title %}Comprehensive Financial Reports - PISCES COMPANY{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 print:hidden">
     <div>
-        <h1 class="text-2xl font-bold text-slate-900">Profit & Loss Reports</h1>
-        <p class="text-sm text-slate-500 mt-1">Analyze periodic revenue, expense breakdown, and net profitability.</p>
+        <h1 class="text-2xl font-bold text-slate-900">Financial Reports Suite</h1>
+        <p class="text-sm text-slate-500 mt-1">Detailed Revenue, Purchase, Cash Flow, and P&L breakdowns.</p>
     </div>
-    <div>
+    <div class="flex items-center gap-3">
         <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition">
             <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
         </a>
+        <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-sm transition">
+            <i class="fa-solid fa-file-pdf"></i> Export / Print All Reports
+        </button>
     </div>
 </div>
 
-<!-- Filter Options Card -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-8">
+<!-- Filters -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-8 print:hidden">
     <form method="get" action="{% url 'reports' %}" class="flex flex-wrap items-center gap-4">
-        <label for="period" class="text-sm font-semibold text-slate-700 flex items-center gap-2">
-            <i class="fa-solid fa-filter text-slate-400"></i> Group By Period:
-        </label>
-        <select name="period" id="period" class="w-48 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-            <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
-            <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
-        </select>
-        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-sm transition">
-            <i class="fa-solid fa-arrows-rotate"></i> Filter Report
+        <div>
+            <label class="text-sm font-semibold text-slate-700 mr-2">Period:</label>
+            <select name="period" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm">
+                <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
+            </select>
+        </div>
+        <div>
+            <label class="text-sm font-semibold text-slate-700 mr-2">Category:</label>
+            <select name="category" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm">
+                <option value="">All Categories</option>
+                {% for cat in all_categories %}
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition">
+            Apply Filter
         </button>
     </form>
 </div>
 
-<!-- Financial Summary Table Card -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-    <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
-        <h2 class="font-bold text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> P&L Summary Table
+<!-- Reports Container -->
+<div class="space-y-12 bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+    
+    <!-- 1. P&L Summary Report -->
+    <div>
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b pb-2">
+            <i class="fa-solid fa-chart-pie text-blue-600"></i> 1. Profit & Loss Summary Report
         </h2>
-        <span class="text-xs text-slate-500 font-medium">Grouped by {{ period_type|title }}</span>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+                    <tr>
+                        <th class="px-4 py-3">Period</th>
+                        <th class="px-4 py-3">Revenue</th>
+                        <th class="px-4 py-3">Purchases</th>
+                        <th class="px-4 py-3">Transport</th>
+                        <th class="px-4 py-3">Labor</th>
+                        <th class="px-4 py-3">Total Expenses</th>
+                        <th class="px-4 py-3">Net Profit / (Loss)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for row in summary %}
+                    <tr>
+                        <td class="px-4 py-3 font-bold text-slate-900">{{ row.period }}</td>
+                        <td class="px-4 py-3 text-emerald-600 font-semibold">MWK {{ row.revenue|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3">MWK {{ row.purchases|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3">MWK {{ row.transport|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3">MWK {{ row.labor|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3 text-rose-600 font-semibold">MWK {{ row.total_expenses|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3 font-bold {% if row.net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                            MWK {{ row.net_profit|floatformat:2|intcomma }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">No summary data available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
-                <tr>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Period</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Revenue (Sales) ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Purchases ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Transport ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Labor ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Total Expenses ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Net Profit / (Loss) ({{ currency_symbol|default:"MWK" }})</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                {% for row in summary %}
-                <tr class="hover:bg-slate-50/80 transition">
-                    <td class="px-5 py-4 font-bold text-slate-900 whitespace-nowrap">{{ row.period }}</td>
-                    <td class="px-5 py-4 font-semibold text-emerald-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.revenue|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.purchases|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.transport|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.labor|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-4 font-semibold text-rose-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.total_expenses|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-4 whitespace-nowrap">
-                        <span class="font-bold text-base {% if row.net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
-                            {{ currency_symbol|default:"MWK" }} {{ row.net_profit|floatformat:2|intcomma }}
-                        </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
-                        <i class="fa-solid fa-chart-line-down text-3xl mb-2 text-slate-300 block"></i>
-                        No transaction data available for reports.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <!-- 2. Revenue Report -->
+    <div>
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b pb-2">
+            <i class="fa-solid fa-arrow-trend-up text-emerald-600"></i> 2. Detailed Revenue Report (Sales)
+        </h2>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+                    <tr>
+                        <th class="px-4 py-3">Item / Product Name</th>
+                        <th class="px-4 py-3">Category</th>
+                        <th class="px-4 py-3">Total Qty Sold</th>
+                        <th class="px-4 py-3">Total Revenue</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for rev in revenue_report %}
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-900">{{ rev.item_name }}</td>
+                        <td class="px-4 py-3">{{ rev.category }}</td>
+                        <td class="px-4 py-3">{{ rev.total_qty }}</td>
+                        <td class="px-4 py-3 font-semibold text-emerald-600">MWK {{ rev.total_revenue|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">No revenue records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- 3. Purchase Report -->
+    <div>
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b pb-2">
+            <i class="fa-solid fa-cart-flatbed text-amber-600"></i> 3. Detailed Purchase Report & Costs
+        </h2>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+                    <tr>
+                        <th class="px-4 py-3">Supplier / Item</th>
+                        <th class="px-4 py-3">Category</th>
+                        <th class="px-4 py-3">Qty Purchased</th>
+                        <th class="px-4 py-3">Goods Cost</th>
+                        <th class="px-4 py-3">Transport</th>
+                        <th class="px-4 py-3">Labor</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for pur in purchase_report %}
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-900">{{ pur.item_name }} <span class="text-xs text-slate-400">({{ pur.party_name|default:"N/A" }})</span></td>
+                        <td class="px-4 py-3">{{ pur.category }}</td>
+                        <td class="px-4 py-3">{{ pur.total_qty }}</td>
+                        <td class="px-4 py-3">MWK {{ pur.total_purchases|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3">MWK {{ pur.total_transport|floatformat:2|intcomma }}</td>
+                        <td class="px-4 py-3">MWK {{ pur.total_labor|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">No purchase records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Cash Flow Movements Report -->
+    <div>
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b pb-2">
+            <i class="fa-solid fa-money-bill-transfer text-blue-600"></i> 4. Cash Flow Statement
+        </h2>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-xs text-slate-500 uppercase">
+                    <tr>
+                        <th class="px-4 py-3">Transaction Type</th>
+                        <th class="px-4 py-3">Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for cf in cashflow_report %}
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-slate-900">{{ cf.transaction_type }}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-900">MWK {{ cf.total_amount|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="2" class="px-4 py-6 text-center text-slate-400">No cash flow movements found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

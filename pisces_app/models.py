@@ -61,3 +61,41 @@ class Trade(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.get_trade_type_display()}: {self.item_name} ({self.quantity} {self.unit_of_measure})"
+
+
+class Invoice(models.Model):
+    STATUS_CHOICES = [
+        ('Draft', 'Draft'),
+        ('Sent', 'Sent'),
+        ('Paid', 'Paid'),
+        ('Overdue', 'Overdue'),
+    ]
+
+    trade = models.OneToOneField(Trade, on_delete=models.CASCADE, related_name='invoice', help_text="Associated trade transaction")
+    invoice_number = models.CharField(max_length=50, unique=True, help_text="e.g. INV-2026-001")
+    issue_date = models.DateField(default=timezone.now)
+    due_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
+    notes = models.TextField(blank=True, null=True, help_text="Payment terms or notes")
+
+    def __str__(self):
+        return f"Invoice {self.invoice_number} - {self.trade.party_name or 'General'}"
+
+
+class Payment(models.Model):
+    PAYMENT_METHODS = [
+        ('Cash', 'Cash'),
+        ('Bank Transfer', 'Bank Transfer'),
+        ('Mobile Money', 'Mobile Money'),
+        ('Cheque', 'Cheque'),
+    ]
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='payments', blank=True, null=True)
+    date = models.DateField(default=timezone.now)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHODS, default='Cash')
+    reference_number = models.CharField(max_length=100, blank=True, null=True, help_text="Transaction ID / Receipt Ref")
+    notes = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"Receipt #{self.id} - ${self.amount} ({self.payment_method})"

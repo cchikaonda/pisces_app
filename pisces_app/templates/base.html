@@ -44,6 +44,9 @@
                 <a href="{% url 'trades' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white {% if request.resolver_match.url_name == 'trades' %}bg-blue-600 text-white shadow-md shadow-blue-600/30{% endif %}">
                     <i class="fa-solid fa-arrow-right-arrow-left w-5"></i> Buy / Sell Trades
                 </a>
+                <a href="{% url 'invoices' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white {% if request.resolver_match.url_name == 'invoices' %}bg-blue-600 text-white shadow-md shadow-blue-600/30{% endif %}">
+                    <i class="fa-solid fa-receipt w-5"></i> Invoices & Payments
+                </a>
                 <a href="{% url 'reports' %}" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white {% if request.resolver_match.url_name == 'reports' %}bg-blue-600 text-white shadow-md shadow-blue-600/30{% endif %}">
                     <i class="fa-solid fa-file-invoice-dollar w-5"></i> P&L Reports
                 </a>

@@ -1,6 +1,21 @@
 from django.contrib import admin
 from django.db.models import Sum
 from .models import CashFlow, Trade
+from django.contrib import admin
+from .models import CashFlow, Trade, Invoice, Payment
+
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ('invoice_number', 'trade', 'issue_date', 'due_date', 'status')
+    list_filter = ('status', 'issue_date')
+    search_fields = ('invoice_number', 'trade__party_name')
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'invoice', 'date', 'amount', 'payment_method', 'reference_number')
+    list_filter = ('payment_method', 'date')
+    search_fields = ('reference_number', 'invoice__invoice_number')
 
 @admin.register(CashFlow)
 class CashFlowAdmin(admin.ModelAdmin):
