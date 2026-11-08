@@ -1,6 +1,40 @@
 from django.db import models
 from django.utils import timezone
 
+class Company(models.Model):
+    COMPANY_TYPES = [
+        ('Client', 'Client / Buyer'),
+        ('Supplier', 'Supplier / Vendor'),
+        ('Both', 'Both'),
+    ]
+    name = models.CharField(max_length=255, unique=True, help_text="e.g., Chipiku Plus City Centre, SANA Mega Store")
+    company_type = models.CharField(max_length=20, choices=COMPANY_TYPES, default='Client')
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Item(models.Model):
+    UNIT_CHOICES = [
+        ('PCS', 'Pieces / Units'),
+        ('BOX', 'Boxes / Cartons'),
+        ('BAG', 'Bags'),
+        ('KG', 'Kilograms'),
+        ('LTR', 'Liters'),
+        ('SET', 'Sets / Bundles'),
+    ]
+
+    name = models.CharField(max_length=150, unique=True, help_text="e.g., Irish Potatoes, Carrots, Garlic")
+    category = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Vegetables, Produce")
+    standard_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Default unit price")
+    unit_of_measure = models.CharField(max_length=10, choices=UNIT_CHOICES, default='KG')
+
+    def __str__(self):
+        return f"{self.name} ({self.unit_of_measure}) - MK {self.standard_price}"
+
+
 class CashFlow(models.Model):
     TRANSACTION_TYPES = [
         ('Capital Input', 'Capital Input'),
@@ -14,7 +48,7 @@ class CashFlow(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.date} - {self.transaction_type}: ${self.amount}"
+        return f"{self.date} - {self.transaction_type}: MK {self.amount}"
 
 
 class Trade(models.Model):
@@ -23,26 +57,19 @@ class Trade(models.Model):
         ('SELL', 'Supply / Sell'),
     ]
 
-    UNIT_CHOICES = [
-        ('PCS', 'Pieces / Units'),
-        ('BOX', 'Boxes / Cartons'),
-        ('BAG', 'Bags'),
-        ('KG', 'Kilograms'),
-        ('LTR', 'Liters'),
-        ('SET', 'Sets / Bundles'),
-    ]
-
     date = models.DateField(default=timezone.now)
     trade_type = models.CharField(max_length=4, choices=TRADE_TYPES)
-    category = models.CharField(max_length=100, help_text="e.g., Office Stationery, Hardware, Electronics")
-    item_name = models.CharField(max_length=150)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)
-    unit_of_measure = models.CharField(max_length=10, choices=UNIT_CHOICES, default='PCS')
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Buying or Selling price per unit")
     
-    party_name = models.CharField(max_length=150, blank=True, null=True, help_text="Supplier Name or Client/Organization Name")
+    # Lumikizani ndi Company ndi Item zomwe tapanga pamwambapa
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name='trades', help_text="Associated Company / Vendor")
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True, blank=True, related_name='trades', help_text="Selected Inventory Item")
+    
+    # Ntchito zosungira dzina kapena mtengo ngati katundu wasintha mtengo panthawi ya malonda
+    custom_item_name = models.CharField(max_length=150, blank=True, null=True, help_text="Optional: Overrides Item name if custom")
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Actual buying or selling price per unit")
+    
     invoice_ref = models.CharField(max_length=50, blank=True, null=True, help_text="LPO or Invoice Number")
-
     transport_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     description = models.CharField(max_length=255, blank=True, null=True)
@@ -60,7 +87,9 @@ class Trade(models.Model):
         return self.item_total
 
     def __str__(self):
-        return f"{self.date} - {self.get_trade_type_display()}: {self.item_name} ({self.quantity} {self.unit_of_measure})"
+        comp_name = self.company.name if self.company else "General"
+        item_label = self.item.name if self.item else self.custom_item_name
+        return f"{self.date} - {self.get_trade_type_display()}: {item_label} with {comp_name}"
 
 
 class Invoice(models.Model):
@@ -80,7 +109,8 @@ class Invoice(models.Model):
     notes = models.TextField(blank=True, null=True, help_text="Payment terms or notes")
 
     def __str__(self):
-        return f"Invoice {self.invoice_number} - {self.trade.party_name or 'General'}"
+        party = self.trade.company.name if self.trade.company else 'General'
+        return f"Invoice {self.invoice_number} - {party}"
 
 
 class Payment(models.Model):
@@ -99,4 +129,4 @@ class Payment(models.Model):
     notes = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"Receipt #{self.id} - ${self.amount} ({self.payment_method})"
+        return f"Receipt - MK {self.amount} ({self.payment_method})"

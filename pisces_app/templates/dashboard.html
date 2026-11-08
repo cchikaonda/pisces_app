@@ -7,15 +7,15 @@
 <!-- Page Header -->
 <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
-        <h1 class="text-2xl font-bold text-slate-900">Executive Dashboard</h1>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Executive Dashboard</h1>
         <p class="text-sm text-slate-500 mt-1">Real-time overview of cash balance, sales, expenses, and recent activity.</p>
     </div>
-    <div class="flex gap-3">
-        <a href="{% url 'trades' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-sm transition">
-            <i class="fa-solid fa-plus"></i> New Trade
+    <div class="flex items-center gap-3">
+        <a href="{% url 'trades' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm shadow-blue-500/20 transition-all duration-200">
+            <i class="fa-solid fa-plus text-xs"></i> New Trade
         </a>
-        <a href="{% url 'cashflow' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold shadow-sm transition">
-            <i class="fa-solid fa-coins"></i> Cash Entry
+        <a href="{% url 'cashflow' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold shadow-sm transition-all duration-200">
+            <i class="fa-solid fa-coins text-xs"></i> Cash Entry
         </a>
     </div>
 </div>
@@ -24,47 +24,47 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     
     <!-- Cash Balance -->
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
         <div>
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Balance</span>
-            <div class="text-2xl font-bold text-slate-900 mt-1">{{ currency_symbol|default:"MWK" }} {{ cash_balance|floatformat:2|intcomma }}</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cash Balance</span>
+            <div class="text-2xl font-extrabold text-slate-900 mt-1.5">{{ currency_symbol|default:"MWK" }} {{ cash_balance|floatformat:2|intcomma }}</div>
         </div>
-        <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
             <i class="fa-solid fa-wallet"></i>
         </div>
     </div>
 
     <!-- Total Sales -->
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
         <div>
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Sales</span>
-            <div class="text-2xl font-bold text-emerald-600 mt-1">{{ currency_symbol|default:"MWK" }} {{ sales|floatformat:2|intcomma }}</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Sales</span>
+            <div class="text-2xl font-extrabold text-emerald-600 mt-1.5">{{ currency_symbol|default:"MWK" }} {{ sales|floatformat:2|intcomma }}</div>
         </div>
-        <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-arrow-up-right-dots"></i>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-arrow-trend-up"></i>
         </div>
     </div>
 
     <!-- Total Expenses -->
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
         <div>
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Expenses</span>
-            <div class="text-2xl font-bold text-rose-600 mt-1">{{ currency_symbol|default:"MWK" }} {{ expenses|floatformat:2|intcomma }}</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Expenses</span>
+            <div class="text-2xl font-extrabold text-rose-600 mt-1.5">{{ currency_symbol|default:"MWK" }} {{ expenses|floatformat:2|intcomma }}</div>
         </div>
-        <div class="w-12 h-12 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
-            <i class="fa-solid fa-arrow-down-left-and-up-right-to-center"></i>
+        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-arrow-trend-down"></i>
         </div>
     </div>
 
     <!-- Net Profit -->
-    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
         <div>
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Net Profit</span>
-            <div class="text-2xl font-bold {% if net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %} mt-1">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Profit / Loss</span>
+            <div class="text-2xl font-extrabold {% if net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %} mt-1.5">
                 {{ currency_symbol|default:"MWK" }} {{ net_profit|floatformat:2|intcomma }}
             </div>
         </div>
-        <div class="w-12 h-12 rounded-lg {% if net_profit >= 0 %}bg-emerald-50 text-emerald-600{% else %}bg-rose-50 text-rose-600{% endif %} flex items-center justify-center text-xl">
+        <div class="w-12 h-12 rounded-xl {% if net_profit >= 0 %}bg-emerald-50 text-emerald-600{% else %}bg-rose-50 text-rose-600{% endif %} flex items-center justify-center text-xl shrink-0">
             <i class="fa-solid fa-chart-line"></i>
         </div>
     </div>
@@ -74,36 +74,39 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
     <!-- Recent Trades Table -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h2 class="font-bold text-slate-900 flex items-center gap-2">
                 <i class="fa-solid fa-cart-shopping text-blue-600"></i> Recent Trades
             </h2>
-            <a href="{% url 'trades' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">View All &rarr;</a>
+            <a href="{% url 'trades' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">View All &rarr;</a>
         </div>
         <div class="overflow-x-auto flex-1">
             <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
+                <thead class="bg-slate-50/70 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-100">
                     <tr>
                         <th class="px-5 py-3 font-semibold">Date</th>
                         <th class="px-5 py-3 font-semibold">Type</th>
-                        <th class="px-5 py-3 font-semibold">Total ({{ currency_symbol|default:"MWK" }})</th>
+                        <th class="px-5 py-3 font-semibold text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for trade in recent_trades %}
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="px-5 py-3 text-slate-900 font-medium whitespace-nowrap">{{ trade.date }}</td>
-                        <td class="px-5 py-3 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if trade.trade_type == 'SELL' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="px-5 py-3.5 text-slate-900 font-medium whitespace-nowrap">{{ trade.date }}</td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold {% if trade.trade_type == 'SELL' %}bg-emerald-50 text-emerald-700 border border-emerald-200/60{% else %}bg-blue-50 text-blue-700 border border-blue-200/60{% endif %}">
                                 {{ trade.trade_type }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 font-semibold text-slate-900 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ trade.item_total|floatformat:2|intcomma }}</td>
+                        <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ trade.item_total|floatformat:2|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-5 py-8 text-center text-slate-400">No recent trade activity.</td>
+                        <td colspan="3" class="px-5 py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-box-open text-2xl mb-2 text-slate-300 block"></i>
+                            No recent trade activity recorded.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -112,36 +115,39 @@
     </div>
 
     <!-- Recent Cashflow Transactions Table -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h2 class="font-bold text-slate-900 flex items-center gap-2">
                 <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Recent Cash Movements
             </h2>
-            <a href="{% url 'cashflow' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">View All &rarr;</a>
+            <a href="{% url 'cashflow' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">View All &rarr;</a>
         </div>
         <div class="overflow-x-auto flex-1">
             <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
+                <thead class="bg-slate-50/70 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-100">
                     <tr>
                         <th class="px-5 py-3 font-semibold">Date</th>
                         <th class="px-5 py-3 font-semibold">Type</th>
-                        <th class="px-5 py-3 font-semibold">Amount ({{ currency_symbol|default:"MWK" }})</th>
+                        <th class="px-5 py-3 font-semibold text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for cf in recent_cashflows %}
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="px-5 py-3 text-slate-900 font-medium whitespace-nowrap">{{ cf.date }}</td>
-                        <td class="px-5 py-3 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if cf.transaction_type == 'Capital Input' or cf.transaction_type == 'Deposit' %}bg-emerald-100 text-emerald-800{% else %}bg-rose-100 text-rose-800{% endif %}">
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="px-5 py-3.5 text-slate-900 font-medium whitespace-nowrap">{{ cf.date }}</td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold {% if cf.transaction_type == 'Capital Input' or cf.transaction_type == 'Deposit' %}bg-emerald-50 text-emerald-700 border border-emerald-200/60{% else %}bg-rose-50 text-rose-700 border border-rose-200/60{% endif %}">
                                 {{ cf.transaction_type }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 font-semibold text-slate-900 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ cf.amount|floatformat:2|intcomma }}</td>
+                        <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ cf.amount|floatformat:2|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-5 py-8 text-center text-slate-400">No cashflow transactions recorded.</td>
+                        <td colspan="3" class="px-5 py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-wallet text-2xl mb-2 text-slate-300 block"></i>
+                            No cashflow transactions recorded.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -152,29 +158,29 @@
 </div>
 
 <!-- P&L Summary Table Section on Dashboard -->
-<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-    <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+<div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
+    <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h2 class="font-bold text-slate-900 flex items-center gap-2">
             <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> P&L Summary Table (Monthly)
         </h2>
-        <a href="{% url 'reports' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Open Detailed Reports &rarr;</a>
+        <a href="{% url 'reports' %}" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">Open Detailed Reports &rarr;</a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs text-slate-500 uppercase border-b border-slate-200">
+            <thead class="bg-slate-50/70 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-100">
                 <tr>
                     <th scope="col" class="px-5 py-3.5 font-semibold">Period</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Revenue (Sales) ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Purchases ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Transport ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Labor ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Total Expenses ({{ currency_symbol|default:"MWK" }})</th>
-                    <th scope="col" class="px-5 py-3.5 font-semibold">Net Profit / (Loss) ({{ currency_symbol|default:"MWK" }})</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Revenue (Sales)</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Purchases</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Transport</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Labor</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Total Expenses</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Net Profit / (Loss)</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 {% for row in summary %}
-                <tr class="hover:bg-slate-50/80 transition">
+                <tr class="hover:bg-slate-50/60 transition">
                     <td class="px-5 py-4 font-bold text-slate-900 whitespace-nowrap">{{ row.period }}</td>
                     <td class="px-5 py-4 font-semibold text-emerald-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.revenue|floatformat:2|intcomma }}</td>
                     <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.purchases|floatformat:2|intcomma }}</td>
@@ -182,15 +188,15 @@
                     <td class="px-5 py-4 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.labor|floatformat:2|intcomma }}</td>
                     <td class="px-5 py-4 font-semibold text-rose-600 whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ row.total_expenses|floatformat:2|intcomma }}</td>
                     <td class="px-5 py-4 whitespace-nowrap">
-                        <span class="font-bold text-base {% if row.net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                        <span class="font-extrabold text-sm {% if row.net_profit >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">
                             {{ currency_symbol|default:"MWK" }} {{ row.net_profit|floatformat:2|intcomma }}
                         </span>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
-                        <i class="fa-solid fa-chart-line-down text-3xl mb-2 text-slate-300 block"></i>
+                    <td colspan="7" class="px-6 py-14 text-center text-slate-400">
+                        <i class="fa-solid fa-chart-line text-3xl mb-2 text-slate-300 block"></i>
                         No transaction data available for reports.
                     </td>
                 </tr>

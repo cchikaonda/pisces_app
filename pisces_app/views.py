@@ -8,7 +8,6 @@ from .forms import CashFlowForm, TradeForm
 from .models import Invoice, Payment
 from .forms import InvoiceForm, PaymentForm  # Make sure to create these forms in forms.py
 
-
 @login_required
 def dashboard(request):
     cashflows = CashFlow.objects.all()
@@ -83,7 +82,6 @@ def cashflow_view(request):
     records = CashFlow.objects.all().order_by('-date')
     return render(request, 'cashflow.html', {'form': form, 'records': records})
 
-
 @login_required
 def trades_view(request):
     if request.method == 'POST':
@@ -100,32 +98,28 @@ def trades_view(request):
     records = Trade.objects.all().order_by('-date')
     return render(request, 'trades.html', {'form': form, 'records': records})
 
-
 @login_required
 def reports_view(request):
     period_type = request.GET.get('period', 'monthly')
-    selected_category = request.GET.get('category', '')
     
     trunc_func = TruncWeek if period_type == 'weekly' else TruncMonth
     item_total_expr = F('quantity') * F('unit_price')
 
     trades_qs = Trade.objects.all()
     cashflows_qs = CashFlow.objects.all()
-    if selected_category:
-        trades_qs = trades_qs.filter(category=selected_category)
 
-    # 1. Revenue (Sales) Report Grouping
+    # 1. Revenue (Sales) Report Grouping (replaced 'category' with 'item')
     revenue_report = trades_qs.filter(trade_type='SELL').annotate(
         period=trunc_func('date')
-    ).values('period', 'category', 'item_name').annotate(
+    ).values('period', 'item', 'custom_item_name').annotate(
         total_revenue=Sum(item_total_expr),
         total_qty=Sum('quantity')
     ).order_by('-period')
 
-    # 2. Purchase Report Grouping
+    # 2. Purchase Report Grouping (replaced 'category' and 'party_name' with valid fields)
     purchase_report = trades_qs.filter(trade_type='BUY').annotate(
         period=trunc_func('date')
-    ).values('period', 'category', 'item_name', 'party_name').annotate(
+    ).values('period', 'item', 'custom_item_name', 'company').annotate(
         total_purchases=Sum(item_total_expr),
         total_transport=Sum('transport_cost'),
         total_labor=Sum('labor_cost'),
@@ -139,7 +133,7 @@ def reports_view(request):
         total_amount=Sum('amount')
     ).order_by('-period')
 
-    # 4. Overall P&L Summary (Existing)
+    # 4. Overall P&L Summary
     report_qs = trades_qs.annotate(period=trunc_func('date')).values('period').annotate(
         revenue=Coalesce(Sum(item_total_expr, filter=Q(trade_type='SELL')), 0.0, output_field=FloatField()),
         purchases=Coalesce(Sum(item_total_expr, filter=Q(trade_type='BUY')), 0.0, output_field=FloatField()),
@@ -167,8 +161,6 @@ def reports_view(request):
         'purchase_report': purchase_report,
         'cashflow_report': cashflow_report,
         'period_type': period_type,
-        'selected_category': selected_category,
-        'all_categories': Trade.objects.values_list('category', flat=True).distinct(),
     }
     return render(request, 'reports.html', context)
 
@@ -226,7 +218,6 @@ def print_invoice_view(request, pk):
         'balance_due': balance_due,
     }
     return render(request, 'print_invoice.html', context)
-
 
 @login_required
 def print_receipt_view(request, pk):
