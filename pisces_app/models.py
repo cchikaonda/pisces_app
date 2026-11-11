@@ -16,6 +16,13 @@ class Company(models.Model):
         return self.name
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True, help_text="e.g., Vegetables, Produce")
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 class Item(models.Model):
     UNIT_CHOICES = [
         ('PCS', 'Pieces / Units'),
@@ -27,7 +34,8 @@ class Item(models.Model):
     ]
 
     name = models.CharField(max_length=150, unique=True, help_text="e.g., Irish Potatoes, Carrots, Garlic")
-    category = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Vegetables, Produce")
+    # Link to Category model instead of plain text
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
     standard_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Default unit price")
     unit_of_measure = models.CharField(max_length=10, choices=UNIT_CHOICES, default='KG')
 

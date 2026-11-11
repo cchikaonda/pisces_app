@@ -87,6 +87,7 @@
                     <tr>
                         <th class="px-5 py-3 font-semibold">Date</th>
                         <th class="px-5 py-3 font-semibold">Type</th>
+                        <th class="px-5 py-3 font-semibold">Item / Ref</th>
                         <th class="px-5 py-3 font-semibold text-right">Total</th>
                     </tr>
                 </thead>
@@ -99,11 +100,15 @@
                                 {{ trade.trade_type }}
                             </span>
                         </td>
+                        <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">
+                            {% if trade.item %}{{ trade.item.name }}{% else %}{{ trade.custom_item_name|default:"General Trade" }}{% endif %}
+                            {% if trade.invoice_ref %}<span class="text-xs text-slate-400 block">Ref: {{ trade.invoice_ref }}</span>{% endif %}
+                        </td>
                         <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ trade.item_total|floatformat:2|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-5 py-12 text-center text-slate-400">
+                        <td colspan="4" class="px-5 py-12 text-center text-slate-400">
                             <i class="fa-solid fa-box-open text-2xl mb-2 text-slate-300 block"></i>
                             No recent trade activity recorded.
                         </td>
@@ -128,6 +133,7 @@
                     <tr>
                         <th class="px-5 py-3 font-semibold">Date</th>
                         <th class="px-5 py-3 font-semibold">Type</th>
+                        <th class="px-5 py-3 font-semibold">Description</th>
                         <th class="px-5 py-3 font-semibold text-right">Amount</th>
                     </tr>
                 </thead>
@@ -140,11 +146,12 @@
                                 {{ cf.transaction_type }}
                             </span>
                         </td>
+                        <td class="px-5 py-3.5 text-slate-600 truncate max-w-xs">{{ cf.description|default:"-" }}</td>
                         <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ cf.amount|floatformat:2|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="px-5 py-12 text-center text-slate-400">
+                        <td colspan="4" class="px-5 py-12 text-center text-slate-400">
                             <i class="fa-solid fa-wallet text-2xl mb-2 text-slate-300 block"></i>
                             No cashflow transactions recorded.
                         </td>

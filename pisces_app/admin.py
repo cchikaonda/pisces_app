@@ -1,6 +1,12 @@
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Company, Item, CashFlow, Trade, Invoice, Payment
+from .models import Company, Item, CashFlow, Trade, Invoice, Payment, Category
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description')
+    search_fields = ('name',)
+
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
@@ -13,7 +19,7 @@ class CompanyAdmin(admin.ModelAdmin):
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'formatted_standard_price', 'unit_of_measure')
     list_filter = ('category', 'unit_of_measure')
-    search_fields = ('name', 'category')
+    search_fields = ('name', 'category__name')
 
     @admin.display(description='Standard Price (MK)')
     def formatted_standard_price(self, obj):

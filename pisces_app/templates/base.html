@@ -290,14 +290,22 @@
 
             <nav class="space-y-1">
 
-                <a href="{% url 'trades' %}" class="nav-link">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                    <span>Trading Activity</span>
+                <a href="{% url 'company_list' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'company_list' or request.resolver_match.url_name == 'company_update' %}active{% endif %}">
+                    <i class="fa-solid fa-building-user"></i>
+                    <span>Clients & Suppliers</span>
                 </a>
 
-                <a href="{% url 'cashflow' %}" class="nav-link">
-                    <i class="fa-solid fa-money-bill-transfer"></i>
-                    <span>Financial Overview</span>
+                <a href="{% url 'category_list' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'category_list' or request.resolver_match.url_name == 'category_update' %}active{% endif %}">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+
+                <a href="{% url 'item_list' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'item_list' or request.resolver_match.url_name == 'item_update' %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Inventory Items & Prices</span>
                 </a>
 
             </nav>

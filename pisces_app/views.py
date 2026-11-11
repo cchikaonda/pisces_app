@@ -3,10 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Q, F, FloatField
 from django.db.models.functions import Coalesce, TruncMonth, TruncWeek
-from .models import CashFlow, Trade
-from .forms import CashFlowForm, TradeForm
-from .models import Invoice, Payment
-from .forms import InvoiceForm, PaymentForm  # Make sure to create these forms in forms.py
+from .models import CashFlow, Trade, Invoice, Payment, Category, Item, Company
+from .forms import CashFlowForm, TradeForm, InvoiceForm, PaymentForm, CategoryForm, ItemForm, CompanyForm   
+
 
 @login_required
 def dashboard(request):
@@ -62,9 +61,10 @@ def dashboard(request):
         'net_profit': net_profit,
         'recent_cashflows': cashflows.order_by('-date')[:5],
         'recent_trades': trades.order_by('-date')[:5],
-        'summary': summary,  # Included P&L summary for dashboard
+        'summary': summary,
     }
     return render(request, 'dashboard.html', context)
+
 
 @login_required
 def cashflow_view(request):
@@ -82,6 +82,7 @@ def cashflow_view(request):
     records = CashFlow.objects.all().order_by('-date')
     return render(request, 'cashflow.html', {'form': form, 'records': records})
 
+
 @login_required
 def trades_view(request):
     if request.method == 'POST':
@@ -98,6 +99,108 @@ def trades_view(request):
     records = Trade.objects.all().order_by('-date')
     return render(request, 'trades.html', {'form': form, 'records': records})
 
+
+# --- CATEGORY & ITEM CRUD VIEWS ---
+
+@login_required
+def category_list(request):
+    categories = Category.objects.all()
+    form = CategoryForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Category added successfully!')
+        return redirect('category_list')
+    return render(request, 'category_list.html', {'categories': categories, 'form': form})
+
+
+@login_required
+def category_update(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    form = CategoryForm(request.POST or None, instance=category)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Category updated successfully!')
+        return redirect('category_list')
+    return render(request, 'category_form.html', {'form': form, 'category': category})
+
+
+@login_required
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'Category deleted successfully!')
+        return redirect('category_list')
+    return render(request, 'category_confirm_delete.html', {'category': category})
+
+
+@login_required
+def item_list(request):
+    items = Item.objects.all()
+    form = ItemForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Item added successfully!')
+        return redirect('item_list')
+    return render(request, 'item_list.html', {'items': items, 'form': form})
+
+
+@login_required
+def item_update(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    form = ItemForm(request.POST or None, instance=item)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Item updated successfully!')
+        return redirect('item_list')
+    return render(request, 'item_form.html', {'form': form, 'item': item})
+
+
+@login_required
+def item_delete(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    if request.method == 'POST':
+        item.delete()
+        messages.success(request, 'Item deleted successfully!')
+        return redirect('item_list')
+    return render(request, 'item_confirm_delete.html', {'item': item})
+
+
+# --- COMPANY CRUD VIEWS ---
+
+@login_required
+def company_list(request):
+    companies = Company.objects.all()
+    form = CompanyForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Company added successfully!')
+        return redirect('company_list')
+    return render(request, 'company_list.html', {'companies': companies, 'form': form})
+
+
+@login_required
+def company_update(request, pk):
+    company = get_object_or_404(Company, pk=pk)
+    form = CompanyForm(request.POST or None, instance=company)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Company updated successfully!')
+        return redirect('company_list')
+    return render(request, 'company_form.html', {'form': form, 'company': company})
+
+
+@login_required
+def company_delete(request, pk):
+    company = get_object_or_404(Company, pk=pk)
+    if request.method == 'POST':
+        company.delete()
+        messages.success(request, 'Company deleted successfully!')
+        return redirect('company_list')
+    return render(request, 'company_confirm_delete.html', {'company': company})
+
+# --- REPORTS & INVOICING VIEWS ---
+
 @login_required
 def reports_view(request):
     period_type = request.GET.get('period', 'monthly')
@@ -108,7 +211,6 @@ def reports_view(request):
     trades_qs = Trade.objects.all()
     cashflows_qs = CashFlow.objects.all()
 
-    # 1. Revenue (Sales) Report Grouping (replaced 'category' with 'item')
     revenue_report = trades_qs.filter(trade_type='SELL').annotate(
         period=trunc_func('date')
     ).values('period', 'item', 'custom_item_name').annotate(
@@ -116,7 +218,6 @@ def reports_view(request):
         total_qty=Sum('quantity')
     ).order_by('-period')
 
-    # 2. Purchase Report Grouping (replaced 'category' and 'party_name' with valid fields)
     purchase_report = trades_qs.filter(trade_type='BUY').annotate(
         period=trunc_func('date')
     ).values('period', 'item', 'custom_item_name', 'company').annotate(
@@ -126,14 +227,12 @@ def reports_view(request):
         total_qty=Sum('quantity')
     ).order_by('-period')
 
-    # 3. Cash Flow Report Grouping
     cashflow_report = cashflows_qs.annotate(
         period=trunc_func('date')
     ).values('period', 'transaction_type').annotate(
         total_amount=Sum('amount')
     ).order_by('-period')
 
-    # 4. Overall P&L Summary
     report_qs = trades_qs.annotate(period=trunc_func('date')).values('period').annotate(
         revenue=Coalesce(Sum(item_total_expr, filter=Q(trade_type='SELL')), 0.0, output_field=FloatField()),
         purchases=Coalesce(Sum(item_total_expr, filter=Q(trade_type='BUY')), 0.0, output_field=FloatField()),
@@ -164,6 +263,7 @@ def reports_view(request):
     }
     return render(request, 'reports.html', context)
 
+
 @login_required
 def invoices_view(request):
     invoices = Invoice.objects.all().order_by('-issue_date')
@@ -181,7 +281,6 @@ def invoices_view(request):
         elif 'payment_submit' in request.POST and payment_form.is_valid():
             payment = payment_form.save()
             
-            # Automatically update invoice status based on total payments
             invoice = payment.invoice
             if invoice and invoice.trade:
                 total_paid = invoice.payments.aggregate(total=Sum('amount'))['total'] or 0
@@ -206,6 +305,7 @@ def invoices_view(request):
     }
     return render(request, 'invoices.html', context)
 
+
 @login_required
 def print_invoice_view(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
@@ -218,6 +318,7 @@ def print_invoice_view(request, pk):
         'balance_due': balance_due,
     }
     return render(request, 'print_invoice.html', context)
+
 
 @login_required
 def print_receipt_view(request, pk):
