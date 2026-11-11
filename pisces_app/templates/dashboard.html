@@ -93,19 +93,39 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for trade in recent_trades %}
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="px-5 py-3.5 text-slate-900 font-medium whitespace-nowrap">{{ trade.date }}</td>
-                        <td class="px-5 py-3.5 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold {% if trade.trade_type == 'SELL' %}bg-emerald-50 text-emerald-700 border border-emerald-200/60{% else %}bg-blue-50 text-blue-700 border border-blue-200/60{% endif %}">
-                                {{ trade.trade_type }}
-                            </span>
-                        </td>
-                        <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">
-                            {% if trade.item %}{{ trade.item.name }}{% else %}{{ trade.custom_item_name|default:"General Trade" }}{% endif %}
-                            {% if trade.invoice_ref %}<span class="text-xs text-slate-400 block">Ref: {{ trade.invoice_ref }}</span>{% endif %}
-                        </td>
-                        <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">{{ currency_symbol|default:"MWK" }} {{ trade.item_total|floatformat:2|intcomma }}</td>
-                    </tr>
+                        {% for ti in trade.trade_items.all %}
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="px-5 py-3.5 text-slate-900 font-medium whitespace-nowrap">{{ trade.date }}</td>
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold {% if trade.trade_type == 'SELL' %}bg-emerald-50 text-emerald-700 border border-emerald-200/60{% else %}bg-blue-50 text-blue-700 border border-blue-200/60{% endif %}">
+                                    {{ trade.trade_type }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">
+                                {{ ti.item.name }} <span class="text-xs text-slate-400">({{ ti.quantity }} &times; {{ ti.unit_price|floatformat:2 }})</span>
+                                {% if trade.invoice_ref %}<span class="text-xs text-slate-400 block">Ref: {{ trade.invoice_ref }}</span>{% endif %}
+                            </td>
+                            <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">
+                                {{ currency_symbol|default:"MWK" }} {{ ti.total_price|floatformat:2|intcomma }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="px-5 py-3.5 text-slate-900 font-medium whitespace-nowrap">{{ trade.date }}</td>
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold {% if trade.trade_type == 'SELL' %}bg-emerald-50 text-emerald-700 border border-emerald-200/60{% else %}bg-blue-50 text-blue-700 border border-blue-200/60{% endif %}">
+                                    {{ trade.trade_type }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">
+                                {{ trade.custom_item_name|default:"General Trade" }}
+                                {% if trade.invoice_ref %}<span class="text-xs text-slate-400 block">Ref: {{ trade.invoice_ref }}</span>{% endif %}
+                            </td>
+                            <td class="px-5 py-3.5 font-semibold text-slate-900 text-right whitespace-nowrap">
+                                {{ currency_symbol|default:"MWK" }} {{ trade.grand_total|floatformat:2|intcomma }}
+                            </td>
+                        </tr>
+                        {% endfor %}
                     {% empty %}
                     <tr>
                         <td colspan="4" class="px-5 py-12 text-center text-slate-400">

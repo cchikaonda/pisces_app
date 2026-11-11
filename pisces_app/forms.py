@@ -52,40 +52,31 @@ class TradeForm(forms.ModelForm):
         model = Trade
         fields = [
             'date',
-            'trade_type', 
-            'company', 
-            'item', 
-            'custom_item_name', 
-            'quantity', 
-            'unit_price', 
-            'invoice_ref', 
-            'transport_cost', 
-            'labor_cost', 
+            'trade_type',
+            'company',
+            'invoice_ref',
+            'transport_cost',
+            'labor_cost',
+            'other_expenses',
             'description'
         ]
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'trade_type': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'company': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'item': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'custom_item_name': forms.TextInput(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'quantity': forms.NumberInput(attrs={'step': '0.01', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'unit_price': forms.NumberInput(attrs={'step': '0.01', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'invoice_ref': forms.TextInput(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'transport_cost': forms.NumberInput(attrs={'step': '0.01', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'labor_cost': forms.NumberInput(attrs={'step': '0.01', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'description': forms.TextInput(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'trade_type': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'company': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'invoice_ref': forms.TextInput(attrs={'placeholder': 'e.g. LPO-001', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'transport_cost': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'labor_cost': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'other_expenses': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
+            'description': forms.TextInput(attrs={'placeholder': 'Optional notes', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700'}),
         }
-
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ['trade', 'invoice_number', 'issue_date', 'due_date', 'status', 'notes']
+        fields = ['trade', 'due_date', 'status', 'notes'] # Removed 'invoice_number'
         widgets = {
             'trade': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'invoice_number': forms.TextInput(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
-            'issue_date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
             'due_date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
             'status': forms.Select(attrs={'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),
             'notes': forms.Textarea(attrs={'rows': 3, 'class': 'w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm'}),

@@ -8,6 +8,8 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('cashflow/', views.cashflow_view, name='cashflow'),
     path('trades/', views.trades_view, name='trades'),
+    path('api/items/create/', views.api_create_item, name='api_create_item'),
+    path('trades/<int:pk>/edit/', views.trade_update, name='trade_update'),
     path('reports/', views.reports_view, name='reports'),
 
     # Category URLs
@@ -16,6 +18,7 @@ urlpatterns = [
     path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
 
     # Item & Price URLs
+    path('api/item-price/<int:item_id>/', views.get_item_price, name='get_item_price'),
     path('items/', views.item_list, name='item_list'),
     path('items/<int:pk>/edit/', views.item_update, name='item_update'),
     path('items/<int:pk>/delete/', views.item_delete, name='item_delete'),

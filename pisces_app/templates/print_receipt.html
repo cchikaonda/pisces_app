@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Receipt #REC-{{ payment.id }} - PISCES COMPANY</title>
+    <title>Receipt {{ payment.receipt_number }} - PISCES COMPANY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -30,9 +30,9 @@
 
         <!-- Receipt Details -->
         <div class="py-6 space-y-3 text-sm">
-            <div class="flex justify-between"><span class="text-slate-500">Receipt ID:</span> <span class="font-bold text-slate-900">#REC-{{ payment.id }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Receipt ID:</span> <span class="font-bold text-slate-900">{{ payment.receipt_number }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500">Invoice Ref:</span> <span class="font-semibold text-slate-900">{{ payment.invoice.invoice_number|default:"N/A" }}</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">Client / Party:</span> <span class="font-medium text-slate-900">{{ payment.invoice.trade.party_name|default:"N/A" }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Client / Party:</span> <span class="font-medium text-slate-900">{{ payment.invoice.trade.company.name|default:"General Cash Client" }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500">Payment Date:</span> <span class="text-slate-900">{{ payment.date }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500">Payment Method:</span> <span class="font-medium text-slate-900">{{ payment.payment_method }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500">Reference / TxID:</span> <span class="text-slate-900">{{ payment.reference_number|default:"N/A" }}</span></div>
@@ -44,8 +44,22 @@
             <span class="font-black text-xl text-emerald-600">MWK {{ payment.amount|floatformat:2 }}</span>
         </div>
 
+        {% if payment.notes %}
+        <div class="mb-4 p-3 bg-amber-50/60 rounded-lg border border-amber-200/60 text-xs text-amber-900">
+            <span class="font-bold block mb-1">Notes:</span> {{ payment.notes }}
+        </div>
+        {% endif %}
+
+        <!-- QR Code Section -->
+        {% if payment.invoice %}
+        <div class="text-center pt-4 pb-2 border-t border-slate-100">
+            <img src="data:image/png;base64,{{ payment.invoice.get_qr_code }}" alt="Payment QR Code" class="w-20 h-20 mx-auto border p-1 rounded-lg shadow-sm bg-white">
+            <span class="text-[9px] uppercase font-bold text-slate-400 mt-1 block">Scan to Verify Transaction</span>
+        </div>
+        {% endif %}
+
         <!-- Footer -->
-        <div class="text-center pt-6 border-t text-xs text-slate-400">
+        <div class="text-center pt-4 border-t text-xs text-slate-400">
             <p>Thank you for your prompt payment!</p>
         </div>
     </div>

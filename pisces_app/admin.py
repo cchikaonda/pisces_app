@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Company, Item, CashFlow, Trade, Invoice, Payment, Category
+from .models import Company, Item, CashFlow, Trade, TradeItem, Invoice, Payment, Category
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -57,32 +57,40 @@ class CashFlowAdmin(admin.ModelAdmin):
         return f"MK {obj.amount:,.2f}"
 
 
+class TradeItemInline(admin.TabularInline):
+    model = TradeItem
+    extra = 1  # Provides 1 empty row by default for adding items
+    autocomplete_fields = ['item']  # Optional: makes item selection searchable if you have many items
+
+
 @admin.register(Trade)
 class TradeAdmin(admin.ModelAdmin):
+    inlines = [TradeItemInline]
     list_display = (
         'date', 
         'trade_type', 
         'company', 
-        'item', 
-        'custom_item_name', 
-        'quantity_display', 
-        'formatted_unit_price', 
+        'items_summary', 
         'invoice_ref', 
+        'formatted_other_expenses',
         'formatted_grand_total'
     )
     list_filter = ('trade_type', 'date', 'company')
-    search_fields = ('company__name', 'item__name', 'custom_item_name', 'invoice_ref', 'description')
+    search_fields = ('company__name', 'trade_items__item__name', 'invoice_ref', 'description')
     date_hierarchy = 'date'
     ordering = ('-date',)
 
-    # Custom column formatting
-    @admin.display(description='Quantity')
-    def quantity_display(self, obj):
-        return f"{obj.quantity:.2f}"
+    @admin.display(description='Items')
+    def items_summary(self, obj):
+        """Displays a summary of items included in this trade."""
+        items = obj.trade_items.all()
+        if not items:
+            return "No items"
+        return ", ".join([f"{ti.item.name} ({ti.quantity})" if ti.item else f"Custom ({ti.quantity})" for ti in items])
 
-    @admin.display(description='Unit Price (MK)')
-    def formatted_unit_price(self, obj):
-        return f"MK {obj.unit_price:,.2f}"
+    @admin.display(description='Other Expenses (MK)')
+    def formatted_other_expenses(self, obj):
+        return f"MK {obj.other_expenses:,.2f}"
 
     @admin.display(description='Grand Total (MK)')
     def formatted_grand_total(self, obj):
